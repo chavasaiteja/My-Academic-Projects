@@ -1,0 +1,1 @@
+ When ios::ate is set, the initial position will be the end of the file, but you are free to seek thereafter. When ios::app is set, all output operations are performed at the end of the file. Since all writes are implicitly preceded by seeks, there is no way to write elsewhere.
