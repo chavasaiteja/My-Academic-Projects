@@ -1,0 +1,142 @@
+int pingPin1=7;
+int pingPin2=8;
+int motorpin1=12;
+int motorpin2=13;
+int reverse_switch=10;
+int temp;
+int pathway[2][20];
+int k=0;
+int i=0;
+int count=0;
+int one_time=0;
+int pointer=0;
+
+void setup() 
+{
+  Serial.begin(9600);
+  pinMode(motorpin1,OUTPUT);
+  pinMode(motorpin2,OUTPUT);
+  pinMode(reverse_switch,INPUT);
+}
+
+void loop()
+{
+  temp=digitalRead(reverse_switch);
+  if(temp==1)
+  {
+    long duration1;
+    long duration2;
+    int cm1;
+    int cm2;
+    pinMode(pingPin1, OUTPUT);
+    pinMode(pingPin2, OUTPUT);
+    digitalWrite(pingPin1, LOW);
+    digitalWrite(pingPin2, LOW);
+    delayMicroseconds(2);
+    digitalWrite(pingPin1, HIGH);
+    digitalWrite(pingPin2, HIGH);
+    delayMicroseconds(5);
+    digitalWrite(pingPin1, LOW);
+    digitalWrite(pingPin2, HIGH);
+    pinMode(pingPin1, INPUT);
+    pinMode(pingPin2, INPUT);
+    duration1 = pulseIn(pingPin1, HIGH);
+    duration2 = pulseIn(pingPin2, HIGH);
+    cm1 = microsecondsToCentimeters(duration1);
+    cm2 = microsecondsToCentimeters(duration2);
+    Serial.print(cm1);
+    Serial.print("cm");
+    Serial.print("  ");
+    Serial.print(cm2);
+    Serial.print("cm");
+    Serial.println();
+    if((cm1==1)&&(cm2>1))
+    turn_straight();
+    if((cm1==1)&&(cm2==1))
+    turn_right();
+    if((cm1>1)&&(cm2>1))
+    turn_left();
+    delay(10);
+  }
+  if(temp==0)
+  {
+    if(one_time==0)
+    {
+      maze_solver();
+      one_time=1;
+    }
+    for(j=0;j<k;j++)
+    {
+      while(pointer<=pathway[1][j])
+      {
+        digitalWrite(motorpin1,HIGH);
+        digitalWrite(motorpin2,HIGH);
+        delay(10);
+        pointer++;
+      }
+      pointer=0;
+      if(pathway[0][j]==-1)
+      {
+        turn_left();
+        delay(10);
+      }
+      if(pathway[0][j]==1)
+      {
+        turn_right();
+        delay(10);
+      }
+    }
+  }
+}
+
+void turn_straight()
+{
+  digitalWrite(motorpin1,HIGH):
+  digitalWrite(motorpin2,HIGH);
+  count++;
+}
+
+void turn_left()
+{
+  digitalWrite(motorpin1,LOW):
+  digitalWrite(motorpin2,HIGH);
+  pathway[0][i]=-1;
+  pathway[1][k]=count;
+  i++;
+  k++;
+  count=0;
+}
+
+void turn_right()
+{
+  digitalWrite(motorpin1,HIGH):
+  digitalWrite(motorpin2,LOW);
+  pathway[0][i]=1;
+  pathway[1][k]=count;
+  i++;
+  k++;
+  count=0;
+}
+
+void maze_solver()
+{
+  int mat[4];
+  mat[0]=-1;
+  mat[1]=1;
+  mat[2]=1;
+  mat[3]=-1;
+  int pointer1=0;
+  int z=0;
+  for(z=0;z<k;z++)
+  {
+    if((pathway[0][z]==-1)&&(pathway[0][z+1]==1)&&(pathway[0][z+2]==1)&&(pathway[0][z+3]==-1))
+    {
+      pathway[1][z]=pathway[1][z]+pathway[1][z+1]+pathway[1][z+2]+pathway[1][z+3];
+    }
+  }
+}
+
+long microsecondsToCentimeters(long microseconds)
+{
+   return microseconds / 29 / 2;
+}
